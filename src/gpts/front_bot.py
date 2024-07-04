@@ -1,7 +1,7 @@
 
-from core import CoreChat
+from .core import CoreChat
 
-class FrontBot(CoreChat):
+class FrontUnitTestBot(CoreChat):
     def __init__(self):
         model="gpt-3.5-turbo"
         system_message = """你是一个前端专家"""

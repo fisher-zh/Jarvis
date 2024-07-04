@@ -1,5 +1,5 @@
 
-from core import CoreToolChat
+from .core import CoreToolChat
 # from langchain_community.tools import ShellTool
 import subprocess
 from langchain_core.tools import tool

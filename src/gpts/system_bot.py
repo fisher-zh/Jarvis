@@ -1,4 +1,4 @@
-from core import CoreToolChat
+from .core import CoreToolChat
 import subprocess
 from langchain_core.tools import tool
 

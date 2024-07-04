@@ -1,7 +1,7 @@
 from langchain_core.tools import tool
 
 from langchain.pydantic_v1 import BaseModel, Field
-from core import CoreToolChat
+from .core import CoreToolChat
 from .system_bot import SystemBot
 from .meno_bot import MemoBot
 

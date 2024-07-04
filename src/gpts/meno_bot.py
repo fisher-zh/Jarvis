@@ -1,4 +1,4 @@
-from core import CoreToolChat
+from .core import CoreToolChat
 from ..tools.memo import memo_tools, memo_tools_map
 
 
