@@ -1,55 +1,41 @@
 from langchain_core.tools import tool
-from langchain.tools.render import render_text_description
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import JsonOutputParser
-from langchain_openai import ChatOpenAI
-from operator import itemgetter
+
+from langchain.pydantic_v1 import BaseModel, Field
+from core import CoreToolChat
+from .system_bot import SystemBot
+from .meno_bot import MemoBot
 
 
 @tool
-def multiply(first_int: int, second_int: int) -> int:
-    """Multiply two integers together."""
-    return first_int * second_int
+def system_bot(requirements: str) -> str:
+    """Execute tasks on the system according to the requirements and return the results."""
+    bot = SystemBot()
+    result = bot.q(requirements)
+    return result.content
 
 
-@tool
-def add(first_int: int, second_int: int) -> int:
-    "Add two integers."
-    return first_int + second_int
+class MemoBotInput(BaseModel):
+    requirements: str = Field(description="Clearly describe the requirements for the memorandum, and the execution time of the memorandum items is mandatory.")
+
+@tool("memo_bot", args_schema=MemoBotInput)
+def memo_bot(requirements: str) -> str:
+    """According to the requirements: Create, Read, Update, and Delete Memorandum."""
+    bot = MemoBot()
+    result = bot.q(requirements)
+    return result.content
 
 
-@tool
-def exponentiate(base: int, exponent: int) -> int:
-    "Exponentiate the base to the exponent power."
-    return base**exponent
 
+tools = [system_bot, memo_bot]
+tools_map = {
+    **{
+        "system_bot": system_bot,
+        "memo_bot": memo_bot
+    }
+}
 
-tools = [add, exponentiate, multiply]
-
-
-def tool_chain(model_output):
-    tool_map = {tool.name: tool for tool in tools}
-    chosen_tool = tool_map[model_output["name"]]
-    return itemgetter("arguments") | chosen_tool
-
-
-class Jarvis:
+class Jarvis(CoreToolChat):
     def __init__(self, model="gpt-3.5-turbo"):
-        rendered_tools = render_text_description(tools)
-        system_prompt = f"""You are an assistant that has access to the following set of tools. Here are the names and descriptions for each tool:
-
-        {rendered_tools}
-
-        Given the user input, return the name and input of the tool to use. Return your response as a JSON blob with 'name' and 'arguments' keys."""
-
-        prompt = ChatPromptTemplate.from_messages(
-            [("system", system_prompt), ("user", "{input}")]
-        )
-
-        model = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
-        self.chain = prompt | model | JsonOutputParser() | tool_chain
+        system_message = "You are a helpful assistant."
+        super().__init__(model=model, system_message=system_message, tools=tools, tools_map=tools_map)
     
-    def question(self, user_input):
-        res = self.chain.invoke({"input": user_input})
-        return res
-

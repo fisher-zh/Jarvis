@@ -1,8 +1,8 @@
 
-from ..core import CoreChat
+from core import CoreChat
 
-class Jarvis(CoreChat):
+class FrontBot(CoreChat):
     def __init__(self):
         model="gpt-3.5-turbo"
-        system_message = """"""
+        system_message = """你是一个前端专家"""
         super().__init__(model=model, system_message=system_message)
